@@ -145,6 +145,15 @@ app.post("/admin/generate", async (req, res) => {
   }
 });
 
+// Debug endpoint to check if variables are loaded
+app.get("/admin/check", (req, res) => {
+  res.json({
+    database_connected: !!process.env.SUPABASE_URL,
+    admin_password_set: !!process.env.ADMIN_PASSWORD,
+    password_length: process.env.ADMIN_PASSWORD ? process.env.ADMIN_PASSWORD.trim().length : 0
+  });
+});
+
 app.get("/", (req, res) => res.send("SAO Proxy is running."));
 
 app.listen(PORT, () => console.log(`SAO Proxy listening on port ${PORT}`));
