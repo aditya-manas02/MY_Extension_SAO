@@ -160,6 +160,7 @@ app.post("/admin/generate", async (req, res) => {
 // Debug endpoint to check if variables are loaded
 app.get("/admin/check", (req, res) => {
   res.json({
+    version: "1.1.0-debug",
     database_connected: !!process.env.SUPABASE_URL,
     admin_password_set: !!process.env.ADMIN_PASSWORD,
     password_length: process.env.ADMIN_PASSWORD ? process.env.ADMIN_PASSWORD.trim().length : 0
