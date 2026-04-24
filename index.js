@@ -10,7 +10,12 @@ app.use(cors({ origin: "*" })); // Chrome extensions don't have a fixed origin
 app.use(express.json());
 
 app.post("/ask", async (req, res) => {
-  const { prompt } = req.body;
+  const { prompt, licenseKey } = req.body;
+  const validKeys = (process.env.LICENSE_KEYS || "").split(",").map(k => k.trim());
+
+  if (!licenseKey || !validKeys.includes(licenseKey)) {
+    return res.status(401).json({ error: "Invalid or missing license key. Please upgrade to Premium." });
+  }
 
   if (!prompt || typeof prompt !== "string" || prompt.trim().length === 0) {
     return res.status(400).json({ error: "Missing or invalid prompt." });
