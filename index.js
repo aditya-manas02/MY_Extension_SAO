@@ -11,10 +11,37 @@ app.use(express.json());
 
 app.post("/ask", async (req, res) => {
   const { prompt, licenseKey } = req.body;
-  const validKeys = (process.env.LICENSE_KEYS || "").split(",").map(k => k.trim());
+  const supabaseUrl = process.env.SUPABASE_URL;
+  const supabaseKey = process.env.SUPABASE_KEY;
 
-  if (!licenseKey || !validKeys.includes(licenseKey)) {
-    return res.status(401).json({ error: "Invalid or missing license key. Please upgrade to Premium." });
+  if (!licenseKey) {
+    return res.status(401).json({ error: "Missing license key." });
+  }
+
+  try {
+    // Check key in Supabase
+    const checkRes = await fetch(`${supabaseUrl}/rest/v1/license_keys?key_string=eq.${licenseKey}&is_active=eq.true`, {
+      method: "GET",
+      headers: {
+        "apikey": supabaseKey,
+        "Authorization": "Bearer " + supabaseKey
+      }
+    });
+
+    const keys = await checkRes.json();
+
+    if (!checkRes.ok || !keys || keys.length === 0) {
+      return res.status(401).json({ error: "Invalid or expired license key." });
+    }
+
+    // Check if expired
+    if (keys[0].expires_at && new Date(keys[0].expires_at) < new Date()) {
+      return res.status(401).json({ error: "License key has expired." });
+    }
+
+  } catch (err) {
+    console.error("Database error:", err);
+    return res.status(500).json({ error: "Database connection failed." });
   }
 
   if (!prompt || typeof prompt !== "string" || prompt.trim().length === 0) {
