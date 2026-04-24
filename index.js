@@ -34,14 +34,15 @@ app.post("/ask", async (req, res) => {
         "Authorization": "Bearer " + apiKey,
       },
       body: JSON.stringify({
-        model: "deepseek-r1-distill-llama-70b",
+        model: "llama3-70b-8192",
         messages: [{ role: "user", content: prompt }],
-        max_tokens: 5,
+        max_tokens: 20,
         temperature: 0,
       }),
     });
 
     const data = await groqRes.json();
+    console.log("Groq Raw Response:", JSON.stringify(data));
 
     if (!groqRes.ok) {
       return res.status(groqRes.status).json({ error: data?.error?.message || "Groq error." });
