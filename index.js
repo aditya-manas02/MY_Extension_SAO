@@ -65,7 +65,7 @@ app.post("/ask", async (req, res) => {
         "Authorization": "Bearer " + apiKey,
       },
       body: JSON.stringify({
-        model: "deepseek-r1-distill-llama-70b",
+        model: "llama-3.3-70b-versatile",
         messages: [{ role: "user", content: prompt }],
         max_tokens: 1024,
         temperature: 0.6,
