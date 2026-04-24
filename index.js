@@ -91,6 +91,56 @@ app.post("/ask", async (req, res) => {
   }
 });
 
+// --- Admin Endpoints ---
+
+// List all keys
+app.get("/admin/list", async (req, res) => {
+  const password = req.headers["admin-password"];
+  if (password !== process.env.ADMIN_PASSWORD) {
+    return res.status(403).json({ error: "Forbidden: Invalid Admin Password" });
+  }
+
+  try {
+    const response = await fetch(`${process.env.SUPABASE_URL}/rest/v1/license_keys?select=*&order=created_at.desc`, {
+      headers: { 
+        "apikey": process.env.SUPABASE_KEY, 
+        "Authorization": "Bearer " + process.env.SUPABASE_KEY 
+      }
+    });
+    const data = await response.json();
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Generate a new key
+app.post("/admin/generate", async (req, res) => {
+  const password = req.headers["admin-password"];
+  if (password !== process.env.ADMIN_PASSWORD) {
+    return res.status(403).json({ error: "Forbidden: Invalid Admin Password" });
+  }
+
+  const newKey = 'SAO-' + Math.random().toString(36).substring(2, 6).toUpperCase() + '-' + Math.random().toString(36).substring(2, 6).toUpperCase();
+
+  try {
+    const response = await fetch(`${process.env.SUPABASE_URL}/rest/v1/license_keys`, {
+      method: "POST",
+      headers: { 
+        "apikey": process.env.SUPABASE_KEY, 
+        "Authorization": "Bearer " + process.env.SUPABASE_KEY,
+        "Content-Type": "application/json",
+        "Prefer": "return=representation"
+      },
+      body: JSON.stringify({ key_string: newKey })
+    });
+    const data = await response.json();
+    res.json(data[0]);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 app.get("/", (req, res) => res.send("SAO Proxy is running."));
 
 app.listen(PORT, () => console.log(`SAO Proxy listening on port ${PORT}`));
