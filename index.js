@@ -95,8 +95,10 @@ app.post("/ask", async (req, res) => {
 
 // List all keys
 app.get("/admin/list", async (req, res) => {
-  const password = req.headers["admin-password"];
-  if (password !== process.env.ADMIN_PASSWORD) {
+  const password = (req.headers["admin-password"] || "").trim();
+  const target = (process.env.ADMIN_PASSWORD || "").trim();
+
+  if (!target || password !== target) {
     return res.status(403).json({ error: "Forbidden: Invalid Admin Password" });
   }
 
@@ -116,8 +118,10 @@ app.get("/admin/list", async (req, res) => {
 
 // Generate a new key
 app.post("/admin/generate", async (req, res) => {
-  const password = req.headers["admin-password"];
-  if (password !== process.env.ADMIN_PASSWORD) {
+  const password = (req.headers["admin-password"] || "").trim();
+  const target = (process.env.ADMIN_PASSWORD || "").trim();
+
+  if (!target || password !== target) {
     return res.status(403).json({ error: "Forbidden: Invalid Admin Password" });
   }
 
