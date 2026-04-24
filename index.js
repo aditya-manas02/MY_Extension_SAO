@@ -34,10 +34,10 @@ app.post("/ask", async (req, res) => {
         "Authorization": "Bearer " + apiKey,
       },
       body: JSON.stringify({
-        model: "llama-3.3-70b-versatile",
+        model: "deepseek-r1-distill-llama-70b",
         messages: [{ role: "user", content: prompt }],
-        max_tokens: 20,
-        temperature: 0,
+        max_tokens: 1024,
+        temperature: 0.6,
       }),
     });
 
@@ -48,8 +48,14 @@ app.post("/ask", async (req, res) => {
       return res.status(groqRes.status).json({ error: data?.error?.message || "Groq error." });
     }
 
-    const answer = data?.choices?.[0]?.message?.content?.trim().toUpperCase();
-    const letter = answer?.match(/[ABCD]/)?.[0] || null;
+    let answer = data?.choices?.[0]?.message?.content || "";
+    
+    // Remove <think>...</think> block if it exists
+    answer = answer.replace(/<think>[\s\S]*?<\/think>/, "").trim();
+    
+    // Find the last A, B, C, or D in the remaining text
+    const matches = answer.match(/[A-D]/g);
+    const letter = matches ? matches[matches.length - 1] : null;
 
     return res.json({ letter });
   } catch (err) {
