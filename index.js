@@ -6,7 +6,7 @@ require("dotenv").config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.use(cors({ origin: "*" })); // Chrome extensions don't have a fixed origin
+app.use(cors({ origin: "*", allowedHeaders: "*" })); // Allow all headers for admin functions
 app.use(express.json());
 
 app.post("/ask", async (req, res) => {
