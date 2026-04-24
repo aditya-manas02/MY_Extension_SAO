@@ -54,7 +54,7 @@ app.post("/ask", async (req, res) => {
     return res.json({ letter });
   } catch (err) {
     console.error("Proxy error:", err);
-    return res.status(500).json({ error: "Internal server error." });
+    return res.status(500).json({ error: "Server Error: " + err.message });
   }
 });
 
