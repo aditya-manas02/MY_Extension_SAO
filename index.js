@@ -6,7 +6,11 @@ require("dotenv").config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.use(cors({ origin: "*", allowedHeaders: "*" })); // Allow all headers for admin functions
+app.use(cors({ 
+  origin: "*", 
+  methods: ["GET", "POST", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "admin-password"] 
+}));
 app.use(express.json());
 
 app.post("/ask", async (req, res) => {
@@ -99,7 +103,11 @@ app.get("/admin/list", async (req, res) => {
   const target = (process.env.ADMIN_PASSWORD || "").trim();
 
   if (!target || password !== target) {
-    return res.status(403).json({ error: "Forbidden: Invalid Admin Password" });
+    console.log(`Admin login failed. Expected length: ${target.length}, Received length: ${password.length}`);
+    return res.status(403).json({ 
+      error: "Invalid Admin Password", 
+      details: `Length mismatch: Expected ${target.length}, Got ${password.length}`
+    });
   }
 
   try {
@@ -122,7 +130,11 @@ app.post("/admin/generate", async (req, res) => {
   const target = (process.env.ADMIN_PASSWORD || "").trim();
 
   if (!target || password !== target) {
-    return res.status(403).json({ error: "Forbidden: Invalid Admin Password" });
+    console.log(`Admin generation failed. Expected length: ${target.length}, Received length: ${password.length}`);
+    return res.status(403).json({ 
+      error: "Invalid Admin Password", 
+      details: `Length mismatch: Expected ${target.length}, Got ${password.length}`
+    });
   }
 
   const newKey = 'SAO-' + Math.random().toString(36).substring(2, 6).toUpperCase() + '-' + Math.random().toString(36).substring(2, 6).toUpperCase();
